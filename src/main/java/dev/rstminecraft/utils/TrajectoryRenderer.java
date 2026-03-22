@@ -67,12 +67,6 @@ public class TrajectoryRenderer {
         MinecraftClient client = MinecraftClient.getInstance();
         if (client.player == null || path.isEmpty()) return;
 
-
-        Vec3d pos = client.player.getPos();
-        Vec3d vel = client.player.getVelocity();
-        Vec3d look = client.player.getRotationVec(1.0F);
-        // Generate Path
-
         MatrixStack matrices = context.matrixStack();
         Vec3d cameraPos = context.camera().getPos();
         Tessellator tessellator = Tessellator.getInstance();

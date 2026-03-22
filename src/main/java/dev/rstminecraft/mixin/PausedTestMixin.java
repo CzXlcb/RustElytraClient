@@ -10,7 +10,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 import org.spongepowered.asm.mixin.injection.callback.LocalCapture;
 
-//@Pseudo
+@Pseudo
 @Mixin(value = baritone.command.defaults.ExecutionControlCommands.class, remap = false)
 public class PausedTestMixin {
     @Inject(method = "<init>", at = @At("RETURN"), locals = LocalCapture.CAPTURE_FAILSOFT, require = 0)

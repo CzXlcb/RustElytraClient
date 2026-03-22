@@ -117,7 +117,6 @@ public class FindPathToOpen {
         double playerWidth = 0.6;
         double playerHeight = 0.6;
 
-        int maxTicks = 14;
         double distanceTravelled = 0;
         Vec3d nextPos = null;
         List<Vec3d> ts = FlightPredictor.predictPath(40,start,startv,lookVec);

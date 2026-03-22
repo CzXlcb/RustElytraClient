@@ -1,6 +1,6 @@
 package dev.rstminecraft.mixin;
 
-import baritone.api.utils.Rotation;
+
 import dev.rstminecraft.RustElytraClient;
 import dev.rstminecraft.utils.BaritoneControlChecker;
 import org.spongepowered.asm.mixin.Mixin;

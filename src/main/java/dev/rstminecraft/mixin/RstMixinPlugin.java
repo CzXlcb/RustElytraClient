@@ -1,6 +1,6 @@
 package dev.rstminecraft.mixin;
 
-import baritone.api.BaritoneAPI;
+
 import org.jetbrains.annotations.Nullable;
 import org.objectweb.asm.tree.ClassNode;
 import org.spongepowered.asm.mixin.extensibility.IMixinConfigPlugin;
@@ -11,16 +11,16 @@ import java.util.Set;
 public class RstMixinPlugin implements IMixinConfigPlugin {
     @Override
     public boolean shouldApplyMixin(String targetClassName, String mixinClassName) {
-//        if (mixinClassName.equals("dev.rstminecraft.mixin.BaritoneUpdateTarget2") || mixinClassName.equals("dev.rstminecraft.mixin.PausedTestMixin2")) {
-//            try {
-//                Class<?> clazz = Class.forName(targetClassName, false,
-//                        Thread.currentThread().getContextClassLoader());
-//                return !clazz.isInterface();
-//            } catch (ClassNotFoundException e) {
-//                return false;
-//            }
-//
-//        }
+        if (mixinClassName.equals("dev.rstminecraft.mixin.BaritoneUpdateTarget2") || mixinClassName.equals("dev.rstminecraft.mixin.PausedTestMixin2")) {
+            try {
+                Class<?> clazz = Class.forName(targetClassName, false,
+                        Thread.currentThread().getContextClassLoader());
+                return !clazz.isInterface();
+            } catch (ClassNotFoundException e) {
+                return false;
+            }
+
+        }
         return true;
     }
 

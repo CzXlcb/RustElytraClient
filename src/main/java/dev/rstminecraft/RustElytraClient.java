@@ -7,7 +7,6 @@ package dev.rstminecraft;
 //文件解释：本文件为模组主文件。
 
 import baritone.api.BaritoneAPI;
-import baritone.api.utils.BetterBlockPos;
 import com.mojang.brigadier.arguments.IntegerArgumentType;
 import dev.rstminecraft.utils.*;
 import net.fabricmc.api.ClientModInitializer;
@@ -27,7 +26,6 @@ import org.lwjgl.glfw.GLFW;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.List;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
