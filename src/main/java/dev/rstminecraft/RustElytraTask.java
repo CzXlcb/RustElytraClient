@@ -33,6 +33,7 @@ import java.util.*;
 import static com.mojang.text2speech.Narrator.LOGGER;
 import static dev.rstminecraft.RSTFireballProtect.FireballProtector;
 import static dev.rstminecraft.RustElytraClient.*;
+import static dev.rstminecraft.RustSupplyTask.extinguishFire;
 import static dev.rstminecraft.TaskThread.*;
 import static dev.rstminecraft.utils.FindPathToOpen.getTakeoffDirection;
 import static dev.rstminecraft.utils.FlightPredictor.predictPath;
@@ -48,7 +49,6 @@ public class RustElytraTask {
     /**
      * 以下变量为鞘翅飞行的状态
      */
-//    private static int isEating = 0;
     private static boolean arrived = false;
     private static int SegFailed = 0;
     private static @Nullable BlockPos LastPos;
@@ -193,13 +193,18 @@ public class RustElytraTask {
                     spinTimes++;
                     if (spinTimes > 1) {
                         RunAsMainThread(() -> BaritoneAPI.getProvider().getPrimaryBaritone().getCommandManager().execute("p"));
-                        scheduleTask((ss,aa)->BaritoneAPI.getProvider().getPrimaryBaritone().getCommandManager().execute("r"),1,0,20,100000);
+                        scheduleTask((ss, aa) -> {
+                            BaritoneAPI.getProvider().getPrimaryBaritone().getCommandManager().execute("r");
+                            BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().resetState();
+                            BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().repackChunks();
+                        }, 1, 0, 20, 100000);
                         flyToOpen(client);
-                        for(int i = 0;i<40;i++){
-                            if(!client.player.getBlockPos().isWithinDistance(LastPos,30)) break;
+                        for (int i = 0; i < 40; i++) {
+                            if (!client.player.getBlockPos().isWithinDistance(LastPos, 30)) break;
                             TaskThread.delay(1);
                         }
-                    } else RunAsMainThread(() -> BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().resetState());
+                    } else
+                        RunAsMainThread(() -> BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().resetState());
                 }
             }
             LastPos = client.player.getBlockPos();
@@ -282,7 +287,7 @@ public class RustElytraTask {
             // 位于岩浆中？自动逃离岩浆
             inFireTick = -45;
             // 打开鞘翅
-            if(client.player.isOnGround()){
+            if (client.player.isOnGround()) {
                 client.options.jumpKey.setPressed(true);
                 delay(4);
                 client.options.jumpKey.setPressed(false);
@@ -716,6 +721,7 @@ public class RustElytraTask {
                     delay(1);
                 }
                 delay(1);
+                extinguishFire(client);
                 int m = 0;
                 for (int i = 9; i < 36; i++) {
                     ItemStack s = client.player.getInventory().getStack(i);

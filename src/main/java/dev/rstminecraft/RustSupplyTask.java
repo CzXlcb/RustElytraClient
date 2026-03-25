@@ -3,6 +3,7 @@ package dev.rstminecraft;
 import baritone.api.BaritoneAPI;
 import dev.rstminecraft.utils.MsgLevel;
 import net.minecraft.block.Block;
+import net.minecraft.block.Blocks;
 import net.minecraft.block.ShulkerBoxBlock;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
@@ -81,10 +82,6 @@ public class RustSupplyTask {
         }
     }
 
-    private interface stackChecker{
-        boolean checker(ItemStack s);
-    }
-
     public static int getFireworkLevel(ItemStack stack) {
         if (stack.isEmpty() || !stack.isOf(Items.FIREWORK_ROCKET)) {
             return 0;
@@ -97,6 +94,29 @@ public class RustSupplyTask {
         }
 
         return 0;
+    }
+
+    public static void extinguishFire(@NotNull MinecraftClient client) {
+        if (client.player == null || client.world == null || client.interactionManager == null)
+            throw new TaskThread.TaskException("重要变量为null");
+        List<BlockPos> fire = new ArrayList<>();
+        int radius = 3;
+        for (int i = -radius; i <= radius; i++) {
+            for (int j = -radius; j <= radius; j++) {
+                for (int k = -radius; k <= radius; k++) {
+                    BlockPos target = client.player.getBlockPos().add(i, j, k);
+                    if (RunAsMainThread(() -> client.world.getBlockState(target).getBlock() == Blocks.FIRE))
+                        fire.add(target);
+                }
+            }
+        }
+        for (BlockPos bp : fire) {
+            RunAsMainThread(() -> {
+                lookAt(client.player, Vec3d.ofCenter(bp));
+                client.interactionManager.attackBlock(bp, Direction.UP);
+            });
+            TaskThread.delay(1);
+        }
     }
 
     private static void mergeItemInInv(@NotNull MinecraftClient client, stackChecker c, @NotNull ScreenHandler handler, int slotMin, int slotMax) {
@@ -218,21 +238,21 @@ public class RustSupplyTask {
                 goldenArmor++;
 
 
-
             if (enderChestCount <= 2) throw new TaskThread.TaskException("物资不足：至少需要3个末影箱！");
             if (!pickaxe)
                 throw new TaskThread.TaskException("物资不足：需要有一把 经验修补吧 耐久3 效率4或效率5 的钻石或合金镐！");
             if (!sword) throw new TaskThread.TaskException("物资不足：需要有一把的钻石或合金剑（不要求附魔）！");
             if (!elytra) throw new TaskThread.TaskException("物资不足：需要穿戴 耐久3 经验修补的鞘翅！");
-            if (FoodCount <= 15) throw new TaskThread.TaskException("物资不足：需要至少16个" + Food.getName().getString() + "!");
+            if (FoodCount <= 15)
+                throw new TaskThread.TaskException("物资不足：需要至少16个" + Food.getName().getString() + "!");
 
-            if (getBoolean("inspectArmor",true) && (goldenArmor != 1 || diamondArmor != 2))
+            if (getBoolean("inspectArmor", true) && (goldenArmor != 1 || diamondArmor != 2))
                 throw new TaskThread.TaskException("物资不足：需要穿戴有 保护4 推荐含有经验修补和耐久3 的一件金质盔甲和2件合金或钻石盔甲！");
 
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 1, handler2, 9, 36);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 2, handler2, 9, 36);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 3, handler2, 9, 36);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.EXPERIENCE_BOTTLE, handler2, 9, 36);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 1, handler2, 9, 36);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 2, handler2, 9, 36);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 3, handler2, 9, 36);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.EXPERIENCE_BOTTLE, handler2, 9, 36);
 
             handled2.close();
         });
@@ -575,10 +595,10 @@ public class RustSupplyTask {
             MsgSender.SendMsg(client.player, "本盒需要取出" + m + "组烟花," + n + (isXP ? "组附魔之瓶" : "个鞘翅"), MsgLevel.debug);
 
 
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 1, handler, 0, 27);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 2, handler, 0, 27);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 3, handler, 0, 27);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.EXPERIENCE_BOTTLE, handler, 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 1, handler, 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 2, handler, 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 3, handler, 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.EXPERIENCE_BOTTLE, handler, 0, 27);
             int a = 0, b = 0;
             for (int i = 0; i < 27; i++) {
                 ItemStack stack = handler.getSlot(i).getStack();
@@ -607,7 +627,7 @@ public class RustSupplyTask {
                     client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP, client.player);
                     client.interactionManager.clickSlot(handler.syncId, 18 + slot, 0, SlotActionType.PICKUP, client.player);
                     client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP, client.player);
-                } else if (stack.getItem() == Items.ELYTRA && !isXP && b < n && isStackHasEnchantment(stack,Enchantments.UNBREAKING,3) && stack.getDamage() < 15) {
+                } else if (stack.getItem() == Items.ELYTRA && !isXP && b < n && isStackHasEnchantment(stack, Enchantments.UNBREAKING, 3) && stack.getDamage() < 15) {
                     b++;
                     int slot = replaceList.removeFirst();
                     client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP, client.player);
@@ -815,18 +835,18 @@ public class RustSupplyTask {
     static void SupplyTask(@NotNull MinecraftClient client, boolean isXP) throws TaskThread.TaskException, TaskThread.TaskCanceled {
         if (client.player == null) throw new TaskThread.TaskException("Player为null");
 
-        Food = FoodList[getInt("FoodIndex",0)];
+        Food = FoodList[getInt("FoodIndex", 0)];
 
         timerMultiplier = 1;
         // 首先走到方块中央
         WalkingToCenter(client);
         TaskThread.delay(2);
-
         // 整理物品栏
         ClientPlayerEntity player = client.player;
         if (player == null || client.interactionManager == null) throw new TaskThread.TaskException("player为null");
         SortAndCheckInv(client, isXP);
         TaskThread.delay(2);
+
 
         int FireworkInNeed = (int) Math.floor(Math.max(isXP ? 23 * 64 - FireworkSupplyChecker(client) : 21 * 64 - FireworkSupplyChecker(client), 0) / 64.0);
 
@@ -835,6 +855,10 @@ public class RustSupplyTask {
         if (FireworkInNeed == 0 && ElytraInNeed == 0) return;
 
         MsgSender.SendMsg(client.player, "所需补给:" + FireworkInNeed + "组烟花," + ElytraInNeed + (isXP ? "组附魔之瓶" : "个鞘翅"), MsgLevel.info);
+
+        // 扑灭身边火焰
+        extinguishFire(client);
+
         // 寻找末影箱
         int slot = findItemInHotBar(player, Items.ENDER_CHEST);
         if (slot == -1) throw new TaskThread.TaskException("无末影箱");
@@ -875,7 +899,7 @@ public class RustSupplyTask {
                 }
                 replaceSlot.add(i);
             } else if (s.getItem() == Items.ELYTRA && !isXP) {
-                if (s.getDamage() < 15 && n < 5 && isStackHasEnchantment(s,Enchantments.UNBREAKING,3)) {
+                if (s.getDamage() < 15 && n < 5 && isStackHasEnchantment(s, Enchantments.UNBREAKING, 3)) {
                     n++;
                     continue;
                 }
@@ -891,7 +915,8 @@ public class RustSupplyTask {
                     max = ShulkerData[i][2];
                 }
             }
-            if (slot2 == -1) MsgSender.SendMsg(client.player, "无可用" + Food.getName().getString() + "!", MsgLevel.warning);
+            if (slot2 == -1)
+                MsgSender.SendMsg(client.player, "无可用" + Food.getName().getString() + "!", MsgLevel.warning);
             else ShulkerList.add(slot2);
         }
         TaskThread.delay(1);
@@ -943,10 +968,10 @@ public class RustSupplyTask {
 
             // 等待潜影盒窗口
             HandledScreen<?> ShulkerHandled = WaitForScreen(client, ShulkerName);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 1, ShulkerHandled.getScreenHandler(), 0, 27);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 2, ShulkerHandled.getScreenHandler(), 0, 27);
-            mergeItemInInv(client, (s2)-> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 3, ShulkerHandled.getScreenHandler(), 0, 27);
-            mergeItemInInv(client, (s2)->s2.getItem() == Items.EXPERIENCE_BOTTLE, ShulkerHandled.getScreenHandler(), 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 1, ShulkerHandled.getScreenHandler(), 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 2, ShulkerHandled.getScreenHandler(), 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 3, ShulkerHandled.getScreenHandler(), 0, 27);
+            mergeItemInInv(client, (s2) -> s2.getItem() == Items.EXPERIENCE_BOTTLE, ShulkerHandled.getScreenHandler(), 0, 27);
             // 拿出补给
             int shouldPutOutFirework = Math.min(FireworkInNeed, ShulkerData[SupplySlot][0]);
             int shouldPutOutElytra = Math.min(ElytraInNeed, ShulkerData[SupplySlot][1]);
@@ -981,6 +1006,10 @@ public class RustSupplyTask {
         // 挖掘末影箱
         mineEnderChest(client, EnderChestTargetPos);
         MsgSender.SendMsg(client.player, "补给任务圆满完成！", MsgLevel.tip);
+    }
+
+    private interface stackChecker {
+        boolean checker(ItemStack s);
     }
 
 
