@@ -152,6 +152,22 @@ public class RustSupplyTask {
 
             // 整理物品栏
             ScreenHandler handler2 = handled2.getScreenHandler();
+
+            for(int i = 36;i<45;i++){
+                Item item = handler2.getSlot(i).getStack().getItem();
+                if(item != Items.NETHERITE_PICKAXE && item != Items.DIAMOND_PICKAXE && item != Items.NETHERITE_SWORD && item != Items.DIAMOND_SWORD && item != Items.ENDER_CHEST && item != Food && item != Items.TOTEM_OF_UNDYING)
+                    continue;
+                for(int j = 9;j < 36;j++){
+                    Item item2 = handler2.getSlot(j).getStack().getItem();
+                    if(item2 != Items.NETHERITE_PICKAXE && item2 != Items.DIAMOND_PICKAXE && item2 != Items.NETHERITE_SWORD && item2 != Items.DIAMOND_SWORD && item2 != Items.ENDER_CHEST && item2 != Food && item2 != Items.TOTEM_OF_UNDYING){
+                        client.interactionManager.clickSlot(handler2.syncId, i, 0, SlotActionType.PICKUP, player);
+                        client.interactionManager.clickSlot(handler2.syncId, j, 0, SlotActionType.PICKUP, player);
+                        client.interactionManager.clickSlot(handler2.syncId, i, 0, SlotActionType.PICKUP, player);
+                        break;
+                    }
+                }
+            }
+
             for (int i = 9; i < 36; i++) {
                 Item item = handler2.getSlot(i).getStack().getItem();
                 while (!(item != Items.NETHERITE_PICKAXE && item != Items.DIAMOND_PICKAXE && item != Items.NETHERITE_SWORD && item != Items.DIAMOND_SWORD && item != Items.ENDER_CHEST && item != Food && item != Items.TOTEM_OF_UNDYING)) {
@@ -442,7 +458,7 @@ public class RustSupplyTask {
         int totalSlots = handled.getScreenHandler().slots.size();
         int containerSlots = totalSlots - 36;
         if (containerSlots <= 0) containerSlots = 27;
-        int[][] data = new int[27][3];
+        int[][] data = new int[27][4];
 
         for (int i = 0; i < containerSlots; i++) {
             Slot s = handled.getScreenHandler().getSlot(i);
@@ -477,6 +493,7 @@ public class RustSupplyTask {
                             }
                         }
                         data[i][2] = ShulkerInnerFinder(Food, inner);
+                        data[i][3] = ShulkerInnerFinder(Items.TOTEM_OF_UNDYING,inner);
 
                     } else {
                         sb.append("  (shulker is null...warning...)").append("\n");
@@ -599,6 +616,8 @@ public class RustSupplyTask {
             mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 2, handler, 0, 27);
             mergeItemInInv(client, (s2) -> s2.getItem() == Items.FIREWORK_ROCKET && getFireworkLevel(s2) == 3, handler, 0, 27);
             mergeItemInInv(client, (s2) -> s2.getItem() == Items.EXPERIENCE_BOTTLE, handler, 0, 27);
+
+
             int a = 0, b = 0;
             for (int i = 0; i < 27; i++) {
                 ItemStack stack = handler.getSlot(i).getStack();
@@ -614,6 +633,20 @@ public class RustSupplyTask {
                         }
                     }
                     continue;
+                }
+
+                if(stack.getItem() == Items.TOTEM_OF_UNDYING){
+                    if (client.player.getInventory().getStack(3).getItem() == Items.TOTEM_OF_UNDYING) {
+                        if (client.player.getInventory().getStack(4).getItem() == Items.TOTEM_OF_UNDYING) break;
+                        client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP,client. player);
+                        client.interactionManager.clickSlot(handler.syncId, 58, 0, SlotActionType.PICKUP, client.player);
+                        client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP, client.player);
+                    } else {
+                        client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP,client. player);
+                        client.interactionManager.clickSlot(handler.syncId, 57, 0, SlotActionType.PICKUP, client.player);
+                        client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP, client.player);
+                    }
+
                 }
                 if (stack.getItem() == Items.FIREWORK_ROCKET && stack.getCount() == stack.getMaxCount() && a < m) {
                     a++;
@@ -919,6 +952,18 @@ public class RustSupplyTask {
                 MsgSender.SendMsg(client.player, "无可用" + Food.getName().getString() + "!", MsgLevel.warning);
             else ShulkerList.add(slot2);
         }
+        if (client.player.getInventory().getStack(4).getItem() != Items.TOTEM_OF_UNDYING) {
+            int slot2 = -1, max = 0;
+            for (int i = 0; i < 27; i++) {
+                if (ShulkerData[i][2] > max) {
+                    slot2 = i;
+                    max = ShulkerData[i][2];
+                }
+            }
+            if (slot2 == -1 || max < 2)
+                MsgSender.SendMsg(client.player, "无可用图腾!", MsgLevel.warning);
+            else ShulkerList.add(slot2);
+        }
         TaskThread.delay(1);
         for (int SupplySlot : ShulkerList) {
             // 等待末影箱窗口
@@ -929,7 +974,7 @@ public class RustSupplyTask {
             else MsgSender.SendMsg(client.player, "准备拿出" + SupplySlot, MsgLevel.tip);
             // 找可以用来放潜影盒的槽位
             slot = -1;
-            for (int j = 0; j < 9; j++) {
+            for (int j = 6; j < 9; j++) {
                 ItemStack stack2 = client.player.getInventory().getStack(j);
                 if (stack2.isEmpty() || stack2.getItem() != Items.ENDER_CHEST && stack2.getItem() != Items.DIAMOND_PICKAXE && stack2.getItem() != Items.NETHERITE_PICKAXE && stack2.getItem() != Items.DIAMOND_SWORD && stack2.getItem() != Items.NETHERITE_SWORD && stack2.getItem() != Food && stack2.getItem() != Items.TOTEM_OF_UNDYING) {
                     slot = j;

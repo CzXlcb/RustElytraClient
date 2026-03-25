@@ -4,6 +4,7 @@ import baritone.api.BaritoneAPI;
 import dev.rstminecraft.utils.MsgLevel;
 import dev.rstminecraft.utils.RSTTask;
 import net.minecraft.client.MinecraftClient;
+import net.minecraft.item.Items;
 import net.minecraft.network.packet.s2c.common.DisconnectS2CPacket;
 import net.minecraft.text.MutableText;
 import net.minecraft.text.Text;
@@ -15,6 +16,7 @@ import java.util.function.Supplier;
 
 import static dev.rstminecraft.RSTFireballProtect.FireballProtector;
 import static dev.rstminecraft.RustElytraClient.*;
+import static dev.rstminecraft.utils.RSTConfig.setBoolean;
 import static dev.rstminecraft.utils.RSTTask.scheduleTask;
 
 public class TaskThread extends Thread {
@@ -172,6 +174,7 @@ public class TaskThread extends Thread {
     public void taskFailed(@NotNull MinecraftClient client, @NotNull String str, int seg) {
         MinecraftClient.getInstance().options.forwardKey.setPressed(false);
         MinecraftClient.getInstance().options.jumpKey.setPressed(false);
+        MinecraftClient.getInstance().options.useKey.setPressed(false);
 
         if (BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().isActive() ||
                 BaritoneAPI.getProvider().getPrimaryBaritone().getMineProcess().isActive())
@@ -228,6 +231,7 @@ public class TaskThread extends Thread {
                     }
                 }, 1, -1, 1, 100);
 
+
                 // 开启补给任务
                 try {
                     RustSupplyTask.SupplyTask(client, isXP);
@@ -253,6 +257,26 @@ public class TaskThread extends Thread {
                 }
 
                 MsgSender.SendMsg(client.player, "第" + nowSeg + "段飞行任务开始！", MsgLevel.info);
+
+
+                RSTTask AutoLogTask = scheduleTask((self, args) -> {
+                    if(client.player != null && autoLogEnabled && TaskThread.isThreadRunning()){
+                        if(client.player.getHealth() < 3.5){
+                            int count = 0;
+                            for(int i = 0;i<45;i++){
+                                if(client.player.getInventory().getStack(i).getItem() == Items.TOTEM_OF_UNDYING)
+                                    count += client.player.getInventory().getStack(i).getCount();
+                            }
+                            if(count <= 1){
+                                autoLogEnabled = false;
+                                setBoolean("autoLogEnabled",false);
+                                ModStatus = ModStatuses.canceled;
+                                self.repeatTimes = 0;
+                                taskFailed(client, "AutoLog图腾数量过少且血量过低！", finalNowSeg);
+                            }
+                        }
+                    }
+                }, 1, -1, 1, 100);
                 // 开启鞘翅任务
                 try {
                     if (RustElytraTask.ElytraTask(client, this.TargetX, this.TargetZ, isXP)) {
@@ -265,16 +289,28 @@ public class TaskThread extends Thread {
                             }
                         }
                         ModStatus = ModStatuses.idle;
+                        synchronized (AutoLogTask) {
+                            AutoLogTask.repeatTimes = -2;
+                        }
                         return;
+                    }
+                    synchronized (AutoLogTask) {
+                        AutoLogTask.repeatTimes = -2;
                     }
                     delay(1);
                 } catch (TaskException e) {
                     // 飞行失败
                     MsgSender.SendMsg(client.player, e.getMessage(), MsgLevel.error);
                     taskFailed(client, e.getMessage(), nowSeg);
+                    synchronized (AutoLogTask) {
+                        AutoLogTask.repeatTimes = -2;
+                    }
                     return;
                 } catch (TaskCanceled e) {
                     MsgSender.SendMsg(client.player, "任务中止！", MsgLevel.warning);
+                    synchronized (AutoLogTask) {
+                        AutoLogTask.repeatTimes = -2;
+                    }
                     return;
                 }
             } catch (NullPointerException e) {

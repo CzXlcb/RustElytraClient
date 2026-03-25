@@ -30,8 +30,7 @@ import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.atomic.AtomicReference;
 import java.util.function.Supplier;
 
-import static dev.rstminecraft.utils.RSTConfig.getBoolean;
-import static dev.rstminecraft.utils.RSTConfig.loadConfig;
+import static dev.rstminecraft.utils.RSTConfig.*;
 import static dev.rstminecraft.utils.RSTTask.scheduleTask;
 import static dev.rstminecraft.utils.RSTTask.tick;
 
@@ -41,6 +40,7 @@ public class RustElytraClient implements ClientModInitializer {
     public static final Item[] FoodList = {Items.GOLDEN_CARROT, Items.GOLDEN_APPLE, Items.ENCHANTED_GOLDEN_APPLE, Items.COOKED_BEEF, Items.COOKED_PORKCHOP, Items.COOKED_CHICKEN};
     static final Object ThreadLock = new Object();
     public static int currentTick = 0;
+    public static boolean autoLogEnabled = false;
     // mixin相关变量
     public static boolean cameraMixinSwitch = false;
     public static float fixedYaw = 0f, fixedPitch = 0f;
@@ -63,6 +63,7 @@ public class RustElytraClient implements ClientModInitializer {
         }
         loadConfig(FabricLoader.getInstance().getConfigDir().resolve("RSTConfig.json"));
         MsgSender = new RSTMsgSender(getBoolean("DisplayDebug", false) ? MsgLevel.debug : MsgLevel.info);
+        autoLogEnabled = getBoolean("autoLogEnabled",false);
         // GUI按键注册
         BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess();
         openCustomScreenKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("RST Auto Elytra Mod主界面", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "RST Auto Elytra Mod"));
