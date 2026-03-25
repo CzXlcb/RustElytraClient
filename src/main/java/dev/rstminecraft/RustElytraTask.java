@@ -191,7 +191,7 @@ public class RustElytraTask {
                 if (spinTimes > 4) throw new TaskException("baritone寻路异常？！疑似原地转圈");
                 else {
                     spinTimes++;
-                    if (spinTimes > 1 && RunAsMainThread(() -> getPotentialJumpBlockingBlocks(7).isEmpty())) {
+                    if (spinTimes > 1) {
                         RunAsMainThread(() -> BaritoneAPI.getProvider().getPrimaryBaritone().getCommandManager().execute("p"));
                         scheduleTask((ss,aa)->BaritoneAPI.getProvider().getPrimaryBaritone().getCommandManager().execute("r"),1,0,20,100000);
                         flyToOpen(client);
@@ -537,6 +537,7 @@ public class RustElytraTask {
                 }
                 TaskThread.delay(1);
             }
+            TaskThread.delay(3);
         }
         TrajectoryRenderer.clear();
         throw new TaskException("尝试飞往开阔地带次数过多");
@@ -618,7 +619,7 @@ public class RustElytraTask {
         if (client.world == null) return 1;
         int totalChunks = 0;
         int unloadedChunks = 0;
-        int RenderChunk = client.options.getClampedViewDistance();
+        int RenderChunk = Math.min(client.options.getClampedViewDistance(), 5);
         // 检查周围区块
         for (int dx = -RenderChunk; dx <= RenderChunk; dx++) {
             for (int dz = -RenderChunk; dz <= RenderChunk; dz++) {
@@ -849,7 +850,6 @@ public class RustElytraTask {
         // 重置各个状态
         timerMultiplier = 1;
         resetStatus();
-        MODLOGGER.error("{}", client.options.getClampedViewDistance());
         // 设置baritone
         BaritoneAPI.getSettings().elytraAutoJump.value = false;
         BaritoneAPI.getSettings().logger.value = (var1x -> {

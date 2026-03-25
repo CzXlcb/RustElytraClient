@@ -17,7 +17,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 
-import static dev.rstminecraft.RustElytraClient.MsgSender;
 
 public class FindPathToOpen {
     public static class TakeoffStruct{
@@ -49,7 +48,6 @@ public class FindPathToOpen {
 
         // 从玩家眼睛位置出发
         Vec3d start = player.getPos().add(0,yh,0);
-        MsgSender.SendMsg(client.player, String.valueOf(start),MsgLevel.warning);
         Vec3d startv = player.getVelocity();
 
         // 生成26个基本方向（归一化向量）
@@ -125,6 +123,7 @@ public class FindPathToOpen {
 
             nextPos = ts.get(t);
 
+            if(!world.isChunkLoaded(BlockPos.ofFloored(nextPos))) return null;
             // 3. 构建当前位置的玩家碰撞箱 (BoundingBox)
             // 居中于当前坐标
             Box playerBox = new Box(
@@ -154,7 +153,7 @@ public class FindPathToOpen {
      * 计算沿某个方向飞行的开阔度分数（分数越高越开阔）
      */
     private static double computeOpennessScore(@NotNull World world, @NotNull Vec3d start, @NotNull Vec3d dir,
-                                               double maxDist, double surroundDist, @NotNull ClientPlayerEntity player) {
+                                               double maxDist, double surroundDist, ClientPlayerEntity player) {
         // 在路径上取4个点（10,20,30,40米处）
         double[][] sampleDistances = {{10,0.15}, {20,0.35}, {30,0.35}, {40,0.15}};
         double score = 0;

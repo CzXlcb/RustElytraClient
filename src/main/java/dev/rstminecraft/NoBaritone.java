@@ -61,7 +61,7 @@ public class NoBaritone extends Screen {
                 context.drawCenteredTextWithShadow(this.textRenderer, "请在QQ群内反馈", this.width / 2, this.height / 2 - 10, 0xAAAAAA);
             }
             case PausedMixinFailed -> {
-                context.drawCenteredTextWithShadow(this.textRenderer, "PausedMixinFailed注入失败了", this.width / 2, this.height / 2 - 50, 0xFFFFFF);
+                context.drawCenteredTextWithShadow(this.textRenderer, "PausedMixin注入失败了", this.width / 2, this.height / 2 - 50, 0xFFFFFF);
                 context.drawCenteredTextWithShadow(this.textRenderer, "这通常是因为作者还没有适配新版本baritone", this.width / 2, this.height / 2 - 30, 0xAAAAAA);
                 context.drawCenteredTextWithShadow(this.textRenderer, "请在QQ群内反馈", this.width / 2, this.height / 2 - 10, 0xAAAAAA);
             }
