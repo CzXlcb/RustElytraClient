@@ -177,8 +177,12 @@ public class RustElytraTask {
         if (SegFailedCounter.getCount() > 25) {
             if (SegFailedCounter.getCount() > 30) throw new TaskException("baritone寻路异常");
             else if (waitReset) {
-                RunAsMainThread(() -> BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().resetState());
+                RunAsMainThread(() -> {
+                    BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().resetState();
+                    BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().repackChunks();
+                });
                 MsgSender.SendMsg(client.player, "SegFailed！正在重置baritone!", MsgLevel.warning);
+                flyToOpen(client);
                 waitReset = false;
             }
         }
@@ -716,6 +720,11 @@ public class RustElytraTask {
                 RunAsMainThread(() -> BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().pathTo(client.player.getBlockPos()));
                 for (int i = 0; i < 600; i++) {
                     if (!BaritoneAPI.getProvider().getPrimaryBaritone().getElytraProcess().isActive()) break;
+                    if (Objects.equals(client.world.getBiome(client.player.getBlockPos()).getKey().map(RegistryKey::getValue).orElse(null), Identifier.of("minecraft", "nether_wastes")) && client.player.isOnGround() && !BaritoneControlChecker.isControlPlayer()) {
+                        RunAsMainThread(() -> BaritoneAPI.getProvider().getPrimaryBaritone().getCommandManager().execute("stop"));
+                        TaskThread.delay(5);
+                        break;
+                    }
                     if (i == 599) throw new TaskException("无法从baritone鞘翅任务中结束！");
                     delay(1);
                 }

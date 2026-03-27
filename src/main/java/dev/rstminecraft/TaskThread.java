@@ -244,6 +244,7 @@ public class TaskThread extends Thread {
                     synchronized (FireballTask) {
                         FireballTask.repeatTimes = -2;
                     }
+                    e.printStackTrace();
                     MsgSender.SendMsg(client.player, e.getMessage(), MsgLevel.error);
                     MsgSender.SendMsg(client.player, "补给任务失败", MsgLevel.fatal);
                     taskFailed(client, "补给任务失败！自动退出！", nowSeg - 1);
@@ -301,6 +302,7 @@ public class TaskThread extends Thread {
                 } catch (TaskException e) {
                     // 飞行失败
                     MsgSender.SendMsg(client.player, e.getMessage(), MsgLevel.error);
+                    e.printStackTrace();
                     taskFailed(client, e.getMessage(), nowSeg);
                     synchronized (AutoLogTask) {
                         AutoLogTask.repeatTimes = -2;

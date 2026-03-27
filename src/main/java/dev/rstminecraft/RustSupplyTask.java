@@ -637,7 +637,7 @@ public class RustSupplyTask {
 
                 if(stack.getItem() == Items.TOTEM_OF_UNDYING){
                     if (client.player.getInventory().getStack(3).getItem() == Items.TOTEM_OF_UNDYING) {
-                        if (client.player.getInventory().getStack(4).getItem() == Items.TOTEM_OF_UNDYING) break;
+                        if (client.player.getInventory().getStack(4).getItem() == Items.TOTEM_OF_UNDYING) continue;
                         client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP,client. player);
                         client.interactionManager.clickSlot(handler.syncId, 58, 0, SlotActionType.PICKUP, client.player);
                         client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP, client.player);
@@ -646,7 +646,7 @@ public class RustSupplyTask {
                         client.interactionManager.clickSlot(handler.syncId, 57, 0, SlotActionType.PICKUP, client.player);
                         client.interactionManager.clickSlot(handler.syncId, i, 0, SlotActionType.PICKUP, client.player);
                     }
-
+                    continue;
                 }
                 if (stack.getItem() == Items.FIREWORK_ROCKET && stack.getCount() == stack.getMaxCount() && a < m) {
                     a++;
