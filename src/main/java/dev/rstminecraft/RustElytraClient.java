@@ -84,7 +84,7 @@ public class RustElytraClient implements ClientModInitializer {
         enableHud = getBoolean("enableHud", true);
         // GUI按键注册
         openCustomScreenKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("RST Auto Elytra Mod主界面", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_R, "RST Auto Elytra Mod"));
-        elytraDebugKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("RST Auto Elytra Mod无尽鞘翅调试按钮", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_F, "RST Auto Elytra Mod"));
+        elytraDebugKey = KeyBindingHelper.registerKeyBinding(new KeyBinding("RST Auto Elytra Mod无尽鞘翅调试按钮", InputUtil.Type.KEYSYM, InputUtil.UNKNOWN_KEY.getCode(), "RST Auto Elytra Mod"));
         TrajectoryRenderer.init();
 
         HudRenderCallback.EVENT.register((DrawContext context, RenderTickCounter tickCounter) -> {

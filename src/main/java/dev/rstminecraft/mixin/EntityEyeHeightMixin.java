@@ -1,8 +1,5 @@
 package dev.rstminecraft.mixin;
 
-import ca.weblite.objc.annotations.Msg;
-import dev.rstminecraft.utils.MsgLevel;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.entity.Entity;
 import net.minecraft.entity.player.PlayerEntity;
 import org.spongepowered.asm.mixin.Mixin;
